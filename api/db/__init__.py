@@ -11,7 +11,7 @@ class SQLAlchemy:
 
     def connect(self):
         sm = orm.sessionmaker(bind=self.engine, autoflush=True,
-                              autocommit=True, expire_on_commit=True)
+                              autocommit=False, expire_on_commit=True)
         self.session = orm.scoped_session(sm)
 
     def close(self):

@@ -40,7 +40,8 @@ Run your tests with
 python -m pytest
 ```
 
+## Example project
+
 ## TODO
 - Dockerfile
-- Example project on side brach
 - Turn sqlalchemy connection into library and release it on pip

@@ -4,14 +4,16 @@ from sqlalchemy import create_engine, orm
 
 
 class SQLAlchemy:
-    def __init__(self):
+    def __init__(self, autocommit=False):
         self.engine = None
         self.session = None
         self._conn_str = None
+        self._autocommit = autocommit
 
     def connect(self):
         sm = orm.sessionmaker(bind=self.engine, autoflush=True,
-                              autocommit=False, expire_on_commit=True)
+                              autocommit=self._autocommit,
+                              expire_on_commit=True)
         self.session = orm.scoped_session(sm)
 
     def close(self):

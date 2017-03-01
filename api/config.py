@@ -27,5 +27,5 @@ ENV_MAPPING = {
 }
 
 # Globals. If you like move it to separate module
-db = SQLAlchemy()
+db = SQLAlchemy(autocommit=True)
 config = ENV_MAPPING[os.environ.get('API_ENV', 'DEVELOPMENT')]

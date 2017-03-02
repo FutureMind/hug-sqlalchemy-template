@@ -1,4 +1,5 @@
 from sqlalchemy.sql import exists
+from sqlalchemy.exc import IntegrityError
 
 from .. import APITest, TESTDB_URI
 from api.models.users import User
@@ -15,8 +16,10 @@ class UserModelTestCase(APITest):
         self.db.connect()
 
     def tearDown(self):
+        self.db.session.query(User).delete()
+        self.db.session.commit()
         self.db.close()
-        super(UserModelTestCase)
+        super(UserModelTestCase, self).tearDown()
 
     def test_saving_and_retrieving_user(self):
         count = self.db.session.query(User).count()
@@ -45,3 +48,13 @@ class UserModelTestCase(APITest):
         hashed = user.password
         self.assertFalse(user.check_password(hashed))
         self.assertTrue(user.check_password('TEST'))
+
+    def test_email_has_unique_constraint(self):
+        user = User(email='test@email.com', password='TEST')
+        self.db.session.add(user)
+        self.db.session.commit()
+        user2 = User(email='test@email.com', password='TEST2')
+        self.db.session.add(user2)
+        with self.assertRaises(IntegrityError):
+            self.db.session.commit()
+        self.db.session.rollback()

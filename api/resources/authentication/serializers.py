@@ -6,7 +6,7 @@ from falcon import HTTP_400
 from api.models import User
 
 
-class UserRegistrationSerializer:
+class AuthBaseSerializer:
 
     def __init__(self, email, password):
         self.email = email
@@ -20,6 +20,9 @@ class UserRegistrationSerializer:
         if not self._validate_email():
             raise HTTPError(status=HTTP_400, title='Validation Error',
                             description='Invalid email format')
+
+
+class UserRegistrationSerializer(AuthBaseSerializer):
 
     def to_dict(self, user):
         return {
@@ -42,3 +45,24 @@ class UserRegistrationSerializer:
         user = User(email=self.email, password=self.password)
         self._save_user(user, db_session)
         return self.to_dict(user)
+
+
+class LoginSerializer(AuthBaseSerializer):
+
+    def _get_object(self, db_session):
+        user = db_session.query(User).filter_by(email=self.email).first()
+        if not user:
+            raise HTTPError(status=HTTP_400, title='Validation Error',
+                            description='Invalid credentials')
+        return user
+
+    def _authenticate(self, user):
+        if not user.check_password(self.password):
+            raise HTTPError(status=HTTP_400, title='Validation Error',
+                            description='Invalid credentials')
+
+    def get_data(self, db_session):
+        self.validate()
+        user = self._get_object(db_session)
+        self._authenticate(user)
+        return {'Token': 'Token'}

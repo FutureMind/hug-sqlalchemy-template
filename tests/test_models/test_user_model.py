@@ -31,3 +31,17 @@ class UserModelTestCase(APITest):
                 exists().where(User.email == 'test@email.com')
             ).scalar()
         )
+
+    def test_stored_password_is_hashed(self):
+        user = User(email='test@email.com', password='TEST')
+        self.db.session.add(user)
+        self.db.session.commit()
+        self.assertNotEqual(user.password, 'TEST')
+
+    def test_password_validation(self):
+        user = User(email='test@email.com', password='TEST')
+        self.db.session.add(user)
+        self.db.session.commit()
+        hashed = user.password
+        self.assertFalse(user.check_password(hashed))
+        self.assertTrue(user.check_password('TEST'))

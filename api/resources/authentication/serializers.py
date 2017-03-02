@@ -1,5 +1,8 @@
 import re
 
+from falcon.errors import HTTPError
+from falcon import HTTP_400
+
 from api.models import User
 
 
@@ -14,7 +17,9 @@ class UserRegistrationSerializer:
                         self.email)
 
     def validate(self):
-        return self._validate_email()
+        if not self._validate_email():
+            raise HTTPError(status=HTTP_400, title='Validation Error',
+                            description='Invalid email format')
 
     def to_dict(self, user):
         return {
@@ -22,9 +27,18 @@ class UserRegistrationSerializer:
             'email': user.email
         }
 
-    def save(self, db_session):
-        if self.validate():
-            user = User(email=self.email, password=self.password)
+    def _save_user(self, user, db_session):
+        db_session.begin()
+        try:
             db_session.add(user)
             db_session.commit()
-            return self.to_dict(user)
+        except:
+            db_session.rollback()
+            raise HTTPError(status=HTTP_400, title='Data Error',
+                            description='Cannot save data in database')
+
+    def save(self, db_session):
+        self.validate()
+        user = User(email=self.email, password=self.password)
+        self._save_user(user, db_session)
+        return self.to_dict(user)

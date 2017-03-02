@@ -6,7 +6,6 @@ from api.config import db
 
 @hug.post('/register')
 def user_registration(email, password, response):
-    db.session.begin()
     serializer = UserRegistrationSerializer(email=email, password=password)
     data = serializer.save(db.session)
     response.status = HTTP_201

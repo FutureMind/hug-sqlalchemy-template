@@ -1,5 +1,8 @@
+import random
+import string
+
 import hug
-from falcon import HTTP_201
+from falcon import HTTP_201, HTTP_400
 
 from .. import APITest
 from api.app import app
@@ -39,3 +42,30 @@ class RegistrationEndpointTestCase(APITest):
         user = db.session.query(User).filter_by(email='test@email.com').first()
         self.assertEqual(user.email, 'test@email.com')
         self.assertTrue(user.check_password('TEST'))
+
+    def test_email_validation(self):
+        response = hug.test.post(
+            app, 'auth/register',
+            body={'email': 'not_an_email', 'password': 'TEST'}
+        )
+        self.assertEqual(response.status, HTTP_400)
+        self.assertIn('errors', response.data)
+        self.assertIn('Validation Error', response.data['errors'])
+        self.assertEqual(response.data['errors']['Validation Error'],
+                         'Invalid email format')
+
+    def test_too_long_data(self):
+        random_str = ''.join(
+            random.choice(string.ascii_uppercase + string.digits)
+            for _ in range(128)
+        )
+        response = hug.test.post(
+            app, 'auth/register',
+            body={'email': random_str + '@email.com',
+                  'password': 'TEST'}
+        )
+        self.assertEqual(response.status, HTTP_400)
+        self.assertIn('errors', response.data)
+        self.assertIn('Data Error', response.data['errors'])
+        self.assertEqual(response.data['errors']['Data Error'],
+                         'Cannot save data in database')

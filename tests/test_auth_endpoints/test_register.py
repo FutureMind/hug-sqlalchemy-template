@@ -35,7 +35,7 @@ class RegistrationEndpointTestCase(APITest):
             {'email': 'test@email.com', 'password': 'TEST'}
         )
         db.connect()
-        self.assertEqual(count + 1, db.query(User).count())
-        user = db.query(User).filter_by(email='test@email.com').first()
+        self.assertEqual(count + 1, db.session.query(User).count())
+        user = db.session.query(User).filter_by(email='test@email.com').first()
         self.assertEqual(user.email, 'test@email.com')
         self.assertTrue(user.check_password('TEST'))

@@ -6,6 +6,7 @@ from .. import APITest
 from api.config import db
 from api.models import User
 from api.app import app
+from api.resources.authentication.jwt import jwt_decode
 
 
 class LoginEndpointTestCase(APITest):
@@ -84,3 +85,12 @@ class LoginEndpointTestCase(APITest):
         self.assertIn('Validation Error', response.data['errors'])
         self.assertEqual(response.data['errors']['Validation Error'],
                          'Invalid email format')
+
+    def test_proper_jwt_is_returned(self):
+        response = hug.test.post(
+            app, 'auth/login',
+            body={'login': 'testuser@email.com', 'password': 'PASSWORD'}
+        )
+        token = response.data['Token']
+        decoded = jwt_decode(token)
+        self.assertEqual(decoded['email'], 'testuser@email.com')

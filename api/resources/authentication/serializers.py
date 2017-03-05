@@ -5,6 +5,7 @@ from falcon import HTTP_400
 
 from api.models import User
 from ..core.serializers import BaseSerializer
+from .jwt import jwt_encode
 
 
 class AuthBaseSerializer(BaseSerializer):
@@ -71,4 +72,5 @@ class LoginSerializer(AuthBaseSerializer):
         self.validate()
         user = self._get_object(db_session)
         self._authenticate(user)
-        return {'Token': 'Token'}
+        token = jwt_encode(user_id=user.id, user_email=user.email)
+        return {'Token': token}

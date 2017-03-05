@@ -23,7 +23,7 @@ class ProductionConfig(Config):
 
 ENV_MAPPING = {
     'DEVELOPMENT': DevelopmentConfig,
-    'PRODUCTION': ProductionConfig
+    'PRODUCTION': ProductionConfig,
 }
 
 # Globals. If you like move it to separate module

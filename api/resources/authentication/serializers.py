@@ -59,7 +59,7 @@ class LoginSerializer(AuthBaseSerializer):
             raise HTTPError(status=HTTP_400, title='Validation Error',
                             description='Invalid credentials')
 
-    def get_data(self, db_session):
+    def login(self, db_session):
         self.validate()
         user = self._get_object(db_session)
         self._authenticate(user)

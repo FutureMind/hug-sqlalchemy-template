@@ -15,6 +15,6 @@ def user_registration(email, password, response):
 @hug.post('/login')
 def user_login(login, password, response):
     serializer = LoginSerializer(email=login, password=password)
-    data = serializer.get_data(db.session)
+    data = serializer.login(db.session)
     response.status = HTTP_200
     return data

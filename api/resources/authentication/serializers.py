@@ -38,6 +38,14 @@ class UserRegistrationSerializer(AuthBaseSerializer):
             raise HTTPError(status=HTTP_400, title='Data Error',
                             description='Cannot save data in database')
 
+    def _validate_password(self):
+        if len(self.password) < 6 or self.password.isalpha():
+            raise HTTPError(
+                status=HTTP_400, title='Validation Error',
+                description='Password must be at least 6 character long '
+                            'and contain special character'
+            )
+
     def save(self, db_session):
         self.validate()
         user = User(email=self.email, password=self.password)

@@ -73,3 +73,14 @@ class LoginEndpointTestCase(APITest):
         self.assertIn('Validation Error', response.data['errors'])
         self.assertEqual(response.data['errors']['Validation Error'],
                          'Invalid credentials')
+
+    def test_login_is_not_proper_email(self):
+        response = hug.test.post(
+            app, 'auth/login',
+            body={'login': 'not_an_email', 'password': 'PASSWORD2'}
+        )
+        self.assertEqual(response.status, HTTP_400)
+        self.assertIn('errors', response.data)
+        self.assertIn('Validation Error', response.data['errors'])
+        self.assertEqual(response.data['errors']['Validation Error'],
+                         'Invalid email format')

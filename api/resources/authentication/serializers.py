@@ -4,20 +4,18 @@ from falcon.errors import HTTPError
 from falcon import HTTP_400
 
 from api.models import User
+from ..core.serializers import BaseSerializer
 
 
-class AuthBaseSerializer:
+class AuthBaseSerializer(BaseSerializer):
 
     def __init__(self, email, password):
         self.email = email
         self.password = password
 
     def _validate_email(self):
-        return re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)",
-                        self.email)
-
-    def validate(self):
-        if not self._validate_email():
+        if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)",
+                        self.email):
             raise HTTPError(status=HTTP_400, title='Validation Error',
                             description='Invalid email format')
 

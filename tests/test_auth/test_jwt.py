@@ -2,25 +2,13 @@ import time
 
 from falcon.errors import HTTPError
 
-from .. import APITest
+from .. import UserAPITest
 from api.config import db
-from api.models import User
-from api.resources.authentication.jwt import jwt_encode, jwt_decode
+from api.resources.authentication.jwt import (jwt_encode, jwt_decode,
+                                              verify_user)
 
 
-class JWTEncodingTestCase(APITest):
-
-    @classmethod
-    def setUpClass(cls):
-        super(JWTEncodingTestCase, cls).setUpClass()
-        db.connect()
-        db.session.begin()
-        cls.user = User(email='testuser@email.com', password='!Password')
-        db.session.add(cls.user)
-        db.session.commit()
-        cls.user_id = cls.user.id
-        cls.user_email = cls.user.email
-        db.close()
+class JWTEncodingTestCase(UserAPITest):
 
     def test_jwt_encoding_and_decoding(self):
         encoded = jwt_encode(user_email=self.user_email, user_id=self.user_id)
@@ -40,3 +28,28 @@ class JWTEncodingTestCase(APITest):
         time.sleep(3)
         with self.assertRaises(HTTPError):
             jwt_decode(encoded)
+
+
+class UserVerifyTestCase(UserAPITest):
+
+    def test_verify_existing_user(self):
+        token = jwt_encode(user_email=self.user_email, user_id=self.user_id)
+        user = verify_user(token)
+        db.connect()
+        self.assertEqual(user.id, self.user_id)
+        self.assertEqual(user.email, self.user_email)
+        db.close()
+
+    def test_verify_user_from_bad_token(self):
+        token = 'Token.Token.Token'
+        db.connect()
+        with self.assertRaises(HTTPError):
+            verify_user(token)
+        db.close()
+
+    def test_verify_token_from_not_existing_user(self):
+        token = jwt_encode(user_email='not_existing@email.com', user_id=1)
+        db.connect()
+        with self.assertRaises(HTTPError):
+            verify_user(token)
+        db.close()

@@ -1,7 +1,7 @@
 import hug
 from falcon import HTTP_200, HTTP_400
 
-from .. import APITest
+from .. import UserAPITest
 
 from api.config import db
 from api.models import User
@@ -9,20 +9,12 @@ from api.app import app
 from api.resources.authentication.jwt import jwt_decode
 
 
-class LoginEndpointTestCase(APITest):
-
-    @classmethod
-    def setUpClass(cls):
-        super(LoginEndpointTestCase, cls).setUpClass()
-        db.connect()
-        cls.user = User(email='testuser@email.com', password='PASSWORD')
-        db.session.add(cls.user)
-        db.close()
+class LoginEndpointTestCase(UserAPITest):
 
     def test_login_endpoint_response(self):
         response = hug.test.post(
             app, 'auth/login',
-            body={'login': 'testuser@email.com', 'password': 'PASSWORD'}
+            body={'login': 'testuser@email.com', 'password': '!Password'}
         )
         self.assertEqual(response.status, HTTP_200)
         self.assertIn('Token', response.data)
@@ -78,7 +70,7 @@ class LoginEndpointTestCase(APITest):
     def test_login_is_not_proper_email(self):
         response = hug.test.post(
             app, 'auth/login',
-            body={'login': 'not_an_email', 'password': 'PASSWORD2'}
+            body={'login': 'not_an_email', 'password': '!Password'}
         )
         self.assertEqual(response.status, HTTP_400)
         self.assertIn('errors', response.data)
@@ -89,7 +81,7 @@ class LoginEndpointTestCase(APITest):
     def test_proper_jwt_is_returned(self):
         response = hug.test.post(
             app, 'auth/login',
-            body={'login': 'testuser@email.com', 'password': 'PASSWORD'}
+            body={'login': 'testuser@email.com', 'password': '!Password'}
         )
         token = response.data['Token']
         decoded = jwt_decode(token)

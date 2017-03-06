@@ -8,12 +8,15 @@ from alembic.config import Config
 
 from api.config import db, config
 from api.app import app
+from api.models import User
+
 
 TESTDB_URI = config.TEST_SQLALCHEMY_DATABASE_URI
 MIGRATIONS = os.path.join(config.PROJECT_ROOT, 'migrations')
 
 
 class APITest(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         if not database_exists(TESTDB_URI):
@@ -29,3 +32,18 @@ class APITest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         drop_database(TESTDB_URI)
+
+
+class UserAPITest(APITest):
+
+    @classmethod
+    def setUpClass(cls):
+        super(UserAPITest, cls).setUpClass()
+        db.connect()
+        db.session.begin()
+        cls.user = User(email='testuser@email.com', password='!Password')
+        db.session.add(cls.user)
+        db.session.commit()
+        cls.user_id = cls.user.id
+        cls.user_email = cls.user.email
+        db.close()

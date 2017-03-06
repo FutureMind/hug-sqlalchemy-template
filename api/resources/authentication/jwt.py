@@ -2,6 +2,7 @@ import datetime
 
 import jwt
 from falcon import HTTPError, HTTP_401
+import hug
 
 from api.config import config, db
 from api.models import User
@@ -38,3 +39,6 @@ def verify_user(token):
         raise HTTPError(status=HTTP_401, title='Authentication Error',
                         description='Invalid token')
     return user
+
+
+token_auth = hug.authentication.token(verify_user=verify_user)

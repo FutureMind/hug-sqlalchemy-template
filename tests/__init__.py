@@ -9,6 +9,7 @@ from alembic.config import Config
 from api.config import db, config
 from api.app import app
 from api.models import User
+from api.resources.authentication.jwt import jwt_encode
 
 
 TESTDB_URI = config.TEST_SQLALCHEMY_DATABASE_URI
@@ -47,3 +48,7 @@ class UserAPITest(APITest):
         cls.user_id = cls.user.id
         cls.user_email = cls.user.email
         db.close()
+
+    def get_authenticate_headers(self, user_id, user_email):
+        token = jwt_encode(user_id=user_id, user_email=user_email)
+        return {'Authorization': token}

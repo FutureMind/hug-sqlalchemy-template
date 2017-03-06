@@ -1,8 +1,11 @@
 import time
 
 from falcon.errors import HTTPError
+from falcon import HTTP_401
+import hug
 
 from .. import UserAPITest
+from api.app import app
 from api.config import db
 from api.resources.authentication.jwt import (jwt_encode, jwt_decode,
                                               verify_user)
@@ -53,3 +56,40 @@ class UserVerifyTestCase(UserAPITest):
         with self.assertRaises(HTTPError):
             verify_user(token)
         db.close()
+
+
+class AuthenticationRequiredViewsTestCase(UserAPITest):
+
+    def test_no_token_provided(self):
+        response = hug.test.get(app, 'users/me')
+        self.assertEqual(response.status, HTTP_401)
+        self.assertIn('Authentication Required', response.data['errors'])
+
+    def test_not_existing_user_data(self):
+        headers = self.get_authenticate_headers(
+            user_email='not_existing@email.com', user_id=4
+        )
+        response = hug.test.get(app, 'users/me', headers=headers)
+        self.assertEqual(response.status, HTTP_401)
+        self.assertIn('Authentication Error', response.data['errors'])
+        self.assertEqual(response.data['errors']['Authentication Error'],
+                         'Invalid token')
+
+    def test_changing_email_invalidates_token(self):
+        db.connect()
+        self.user.email = 'another@email.com'
+        db.session.add(self.user)
+        db.close()
+        headers = self.get_authenticate_headers(
+            user_email=self.user_email, user_id=self.user_id
+        )
+        response = hug.test.get(app, 'users/me', headers=headers)
+        self.assertEqual(response.status, HTTP_401)
+        self.assertIn('Authentication Error', response.data['errors'])
+        self.assertEqual(response.data['errors']['Authentication Error'],
+                         'Invalid token')
+        # change email back
+        db.connect()
+        self.user.email = self.user_email
+        db.session.add(self.user)
+        db.session.close()

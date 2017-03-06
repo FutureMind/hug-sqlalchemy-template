@@ -2,12 +2,12 @@ import os
 
 import unittest
 from sqlalchemy_utils import database_exists, create_database, drop_database
-from sqlalchemy import create_engine
 
 from alembic import command
 from alembic.config import Config
 
 from api.config import db, config
+from api.app import app
 
 TESTDB_URI = config.TEST_SQLALCHEMY_DATABASE_URI
 MIGRATIONS = os.path.join(config.PROJECT_ROOT, 'migrations')
@@ -24,7 +24,7 @@ class APITest(unittest.TestCase):
         alembic_cfg.set_main_option('sqlalchemy.url', TESTDB_URI)
 
         command.upgrade(alembic_cfg, 'head')
-        db.engine = create_engine(TESTDB_URI)
+        db.init_app(app, TESTDB_URI)
 
     @classmethod
     def tearDownClass(cls):

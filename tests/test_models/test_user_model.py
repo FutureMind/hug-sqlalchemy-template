@@ -56,3 +56,11 @@ class UserModelTestCase(APITest):
         with self.assertRaises(IntegrityError):
             db.session.commit()
         db.session.rollback()
+
+    def test_user_details_are_empty_after_user_creation(self):
+        user = User(email='test@email.com', password='TEST')
+        db.session.add(user)
+        db.session.commit()
+        self.assertEqual('', user.name)
+        self.assertEqual('', user.location)
+        self.assertEqual('', user.about)

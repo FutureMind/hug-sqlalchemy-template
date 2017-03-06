@@ -42,6 +42,9 @@ class RegistrationEndpointTestCase(APITest):
         user = db.session.query(User).filter_by(email='test@email.com').first()
         self.assertEqual(user.email, 'test@email.com')
         self.assertTrue(user.check_password('TEST123'))
+        self.assertEqual(user.about, '')
+        self.assertEqual(user.location, '')
+        self.assertEqual(user.name, '')
 
     def test_email_validation(self):
         response = hug.test.post(

@@ -49,6 +49,6 @@ class UserAPITest(APITest):
         cls.user_email = cls.user.email
         db.close()
 
-    def get_authenticate_headers(self, user_id, user_email):
+    def get_authentication_headers(self, user_id, user_email):
         token = jwt_encode(user_id=user_id, user_email=user_email)
         return {'Authorization': token}

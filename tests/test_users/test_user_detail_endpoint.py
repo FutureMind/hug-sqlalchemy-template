@@ -9,8 +9,8 @@ from api.app import app
 class LoggedUserDetailEndpointTestCase(UserAPITest):
 
     def test_response(self):
-        headers = self.get_authenticate_headers(user_id=self.user_id,
-                                                user_email=self.user_email)
+        headers = self.get_authentication_headers(user_id=self.user_id,
+                                                  user_email=self.user_email)
         response = hug.test.get(app, 'users/me', headers=headers)
         self.assertEqual(response.status, HTTP_200)
         self.assertIn('email', response.data)
@@ -23,8 +23,8 @@ class LoggedUserDetailEndpointTestCase(UserAPITest):
         self.assertEqual(response.data['about'], '')
 
     def test_response_after_user_update_data(self):
-        headers = self.get_authenticate_headers(user_id=self.user_id,
-                                                user_email=self.user_email)
+        headers = self.get_authentication_headers(user_id=self.user_id,
+                                                  user_email=self.user_email)
         db.connect()
         self.user.about = 'Western wind chases foamed waves'
         self.user.name = 'Abbot'

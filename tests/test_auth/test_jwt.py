@@ -66,7 +66,7 @@ class AuthenticationRequiredViewsTestCase(UserAPITest):
         self.assertIn('Authentication Required', response.data['errors'])
 
     def test_not_existing_user_data(self):
-        headers = self.get_authenticate_headers(
+        headers = self.get_authentication_headers(
             user_email='not_existing@email.com', user_id=4
         )
         response = hug.test.get(app, 'users/me', headers=headers)
@@ -80,7 +80,7 @@ class AuthenticationRequiredViewsTestCase(UserAPITest):
         self.user.email = 'another@email.com'
         db.session.add(self.user)
         db.close()
-        headers = self.get_authenticate_headers(
+        headers = self.get_authentication_headers(
             user_email=self.user_email, user_id=self.user_id
         )
         response = hug.test.get(app, 'users/me', headers=headers)

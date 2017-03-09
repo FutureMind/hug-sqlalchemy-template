@@ -2,8 +2,7 @@ import hug
 from falcon import HTTP_200
 
 from .. import UserAPITest
-from api.config import db
-from api.app import app
+from api.app import db
 
 
 class LoggedUserDetailEndpointTestCase(UserAPITest):
@@ -11,7 +10,7 @@ class LoggedUserDetailEndpointTestCase(UserAPITest):
     def test_response(self):
         headers = self.get_authentication_headers(user_id=self.user_id,
                                                   user_email=self.user_email)
-        response = hug.test.get(app, 'users/me', headers=headers)
+        response = hug.test.get(hug.current_app, 'users/me', headers=headers)
         self.assertEqual(response.status, HTTP_200)
         self.assertIn('email', response.data)
         self.assertIn('name', response.data)
@@ -31,7 +30,7 @@ class LoggedUserDetailEndpointTestCase(UserAPITest):
         self.user.location = 'Sigil'
         db.session.add(self.user)
         db.close()
-        response = hug.test.get(app, 'users/me', headers=headers)
+        response = hug.test.get(hug.current_app, 'users/me', headers=headers)
         self.assertEqual(response.data['name'], 'Abbot')
         self.assertEqual(response.data['location'], 'Sigil')
         self.assertEqual(response.data['about'],

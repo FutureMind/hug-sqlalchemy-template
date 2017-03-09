@@ -1,7 +1,5 @@
 import os
 
-from api.db import SQLAlchemy
-
 
 # Declare your config classes with settings variables here
 class Config:
@@ -13,8 +11,12 @@ class Config:
 
 class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
-    TEST_SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'TEST_SQLALCHEMY_DATABASE_URI', SQLALCHEMY_DATABASE_URI + '_test'
+
+
+class TestingConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'TEST_SQLALCHEMY_DATABASE_URI',
+        DevelopmentConfig.SQLALCHEMY_DATABASE_URI + '_test'
     )
     JWT_EXPIRATION_TIME = 2  # 2 seconds
 
@@ -23,11 +25,10 @@ class ProductionConfig(Config):
     pass
 
 
-ENV_MAPPING = {
+config_dict = {
     'DEVELOPMENT': DevelopmentConfig,
     'PRODUCTION': ProductionConfig,
-}
+    'TESTING': TestingConfig,
 
-# Globals. If you like move it to separate module
-db = SQLAlchemy(autocommit=True)
-config = ENV_MAPPING[os.environ.get('API_ENV', 'DEVELOPMENT')]
+    'default': DevelopmentConfig
+}

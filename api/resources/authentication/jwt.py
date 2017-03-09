@@ -4,24 +4,24 @@ import jwt
 from falcon import HTTPError, HTTP_401
 import hug
 
-from api.config import config, db
+from api.app import db
 from api.models import User
 
 
 def jwt_encode(user_id, user_email):
     expires = datetime.datetime.utcnow() + datetime.timedelta(
-        seconds=config.JWT_EXPIRATION_TIME)
+        seconds=hug.current_app_config.JWT_EXPIRATION_TIME)
     payload = {
         'exp': expires,
         'id': user_id,
         'email': user_email
     }
-    return jwt.encode(payload, config.SECRET_KEY)
+    return jwt.encode(payload, hug.current_app_config.SECRET_KEY)
 
 
 def jwt_decode(token):
     try:
-        decoded = jwt.decode(token, config.SECRET_KEY)
+        decoded = jwt.decode(token, hug.current_app_config.SECRET_KEY)
     except jwt.DecodeError:
         raise HTTPError(status=HTTP_401, title='Authentication Error',
                         description='Invalid token')

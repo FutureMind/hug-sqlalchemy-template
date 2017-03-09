@@ -1,6 +1,6 @@
 from ..core.serializers import ModelSerializer
 from api.models import User
-from api.config import db
+from api.app import db
 
 
 class UserBaseSerializer(ModelSerializer):

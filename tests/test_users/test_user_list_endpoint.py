@@ -3,8 +3,7 @@ from falcon import HTTP_200
 
 from sqlalchemy import not_
 
-from api.app import app
-from api.config import db
+from api.app import db
 from api.models import User
 from .. import UserAPITest
 
@@ -27,7 +26,7 @@ class UserListEndpointTestCase(UserAPITest):
         super(UserListEndpointTestCase, self).tearDown()
 
     def test_one_user_response(self):
-        response = hug.test.get(app, 'users', headers=self.headers)
+        response = hug.test.get(hug.current_app, 'users', headers=self.headers)
         self.assertEqual(response.status, HTTP_200)
         self.assertTrue(isinstance(response.data, list))
         self.assertEqual(len(response.data), 1)
@@ -50,7 +49,7 @@ class UserListEndpointTestCase(UserAPITest):
         db.session.commit()
         db.close()
         # check response
-        response = hug.test.get(app, 'users', headers=self.headers)
+        response = hug.test.get(hug.current_app, 'users', headers=self.headers)
         self.assertEqual(response.status, HTTP_200)
         self.assertTrue(isinstance(response.data, list))
         self.assertEqual(len(response.data), 3)

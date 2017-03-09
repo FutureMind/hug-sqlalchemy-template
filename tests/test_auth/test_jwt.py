@@ -5,8 +5,7 @@ from falcon import HTTP_401
 import hug
 
 from .. import UserAPITest
-from api.app import app
-from api.config import db
+from api.app import db
 from api.resources.authentication.jwt import (jwt_encode, jwt_decode,
                                               verify_user)
 
@@ -61,7 +60,7 @@ class UserVerifyTestCase(UserAPITest):
 class AuthenticationRequiredViewsTestCase(UserAPITest):
 
     def test_no_token_provided(self):
-        response = hug.test.get(app, 'users/me')
+        response = hug.test.get(hug.current_app, 'users/me')
         self.assertEqual(response.status, HTTP_401)
         self.assertIn('Authentication Required', response.data['errors'])
 
@@ -69,7 +68,7 @@ class AuthenticationRequiredViewsTestCase(UserAPITest):
         headers = self.get_authentication_headers(
             user_email='not_existing@email.com', user_id=4
         )
-        response = hug.test.get(app, 'users/me', headers=headers)
+        response = hug.test.get(hug.current_app, 'users/me', headers=headers)
         self.assertEqual(response.status, HTTP_401)
         self.assertIn('Authentication Error', response.data['errors'])
         self.assertEqual(response.data['errors']['Authentication Error'],
@@ -83,7 +82,7 @@ class AuthenticationRequiredViewsTestCase(UserAPITest):
         headers = self.get_authentication_headers(
             user_email=self.user_email, user_id=self.user_id
         )
-        response = hug.test.get(app, 'users/me', headers=headers)
+        response = hug.test.get(hug.current_app, 'users/me', headers=headers)
         self.assertEqual(response.status, HTTP_401)
         self.assertIn('Authentication Error', response.data['errors'])
         self.assertEqual(response.data['errors']['Authentication Error'],

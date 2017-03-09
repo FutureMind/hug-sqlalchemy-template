@@ -3,7 +3,7 @@ import re
 from falcon.errors import HTTPError
 from falcon import HTTP_400
 
-from api.config import db
+from api.app import db
 from api.models import User
 from ..core.serializers import BaseSerializer
 from .jwt import jwt_encode

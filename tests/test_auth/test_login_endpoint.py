@@ -3,9 +3,8 @@ from falcon import HTTP_200, HTTP_400
 
 from .. import UserAPITest
 
-from api.config import db
 from api.models import User
-from api.app import app
+from api.app import db
 from api.resources.authentication.jwt import jwt_decode
 
 
@@ -13,7 +12,7 @@ class LoginEndpointTestCase(UserAPITest):
 
     def test_login_endpoint_response(self):
         response = hug.test.post(
-            app, 'auth/login',
+            hug.current_app, 'auth/login',
             body={'login': 'testuser@email.com', 'password': '!Password'}
         )
         self.assertEqual(response.status, HTTP_200)
@@ -23,7 +22,7 @@ class LoginEndpointTestCase(UserAPITest):
     def test_invalid_login_and_password(self):
         # invalid login and password
         response = hug.test.post(
-            app, 'auth/login',
+            hug.current_app, 'auth/login',
             body={'login': 'invalid@email.com', 'password': 'INVALID'}
         )
         self.assertEqual(response.status, HTTP_400)
@@ -33,7 +32,7 @@ class LoginEndpointTestCase(UserAPITest):
                          'Invalid credentials')
         # invalid login
         response = hug.test.post(
-            app, 'auth/login',
+            hug.current_app, 'auth/login',
             body={'login': 'testuser2@email.com', 'password': 'PASSWORD'}
         )
         self.assertEqual(response.status, HTTP_400)
@@ -43,7 +42,7 @@ class LoginEndpointTestCase(UserAPITest):
                          'Invalid credentials')
         # invalid password
         response = hug.test.post(
-            app, 'auth/login',
+            hug.current_app, 'auth/login',
             body={'login': 'testuser@email.com', 'password': 'PASSWORD1'}
         )
         self.assertEqual(response.status, HTTP_400)
@@ -58,7 +57,7 @@ class LoginEndpointTestCase(UserAPITest):
         db.session.add(user)
         db.close()
         response = hug.test.post(
-            app, 'auth/login',
+            hug.current_app, 'auth/login',
             body={'login': 'testuser@email.com', 'password': 'PASSWORD2'}
         )
         self.assertEqual(response.status, HTTP_400)
@@ -69,7 +68,7 @@ class LoginEndpointTestCase(UserAPITest):
 
     def test_login_is_not_proper_email(self):
         response = hug.test.post(
-            app, 'auth/login',
+            hug.current_app, 'auth/login',
             body={'login': 'not_an_email', 'password': '!Password'}
         )
         self.assertEqual(response.status, HTTP_400)
@@ -80,7 +79,7 @@ class LoginEndpointTestCase(UserAPITest):
 
     def test_proper_jwt_is_returned(self):
         response = hug.test.post(
-            app, 'auth/login',
+            hug.current_app, 'auth/login',
             body={'login': 'testuser@email.com', 'password': '!Password'}
         )
         token = response.data['Token']

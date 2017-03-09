@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .. import APITest
 from api.models.users import User
-from api.config import db
+from api.app import db
 
 
 class UserModelTestCase(APITest):

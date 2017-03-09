@@ -5,8 +5,7 @@ import hug
 from falcon import HTTP_201, HTTP_400
 
 from .. import APITest
-from api.app import app
-from api.config import db
+from api.app import db
 from api.models import User
 
 
@@ -20,7 +19,7 @@ class RegistrationEndpointTestCase(APITest):
 
     def test_user_registration_response(self):
         response = hug.test.post(
-            app, 'auth/register',
+            hug.current_app, 'auth/register',
             body={'email': 'test@email.com', 'password': 'TEST123'}
         )
         self.assertEqual(response.status, HTTP_201)
@@ -34,7 +33,7 @@ class RegistrationEndpointTestCase(APITest):
         count = db.session.query(User).count()
         db.close()
         hug.test.post(
-            app, 'auth/register',
+            hug.current_app, 'auth/register',
             {'email': 'test@email.com', 'password': 'TEST123'}
         )
         db.connect()
@@ -48,7 +47,7 @@ class RegistrationEndpointTestCase(APITest):
 
     def test_email_validation(self):
         response = hug.test.post(
-            app, 'auth/register',
+            hug.current_app, 'auth/register',
             body={'email': 'not_an_email', 'password': 'TEST123'}
         )
         self.assertEqual(response.status, HTTP_400)
@@ -63,7 +62,7 @@ class RegistrationEndpointTestCase(APITest):
             for _ in range(128)
         )
         response = hug.test.post(
-            app, 'auth/register',
+            hug.current_app, 'auth/register',
             body={'email': random_str + '@email.com',
                   'password': 'TEST123'}
         )
@@ -75,7 +74,7 @@ class RegistrationEndpointTestCase(APITest):
 
     def test_too_short_password_cannot_be_registered(self):
         response = hug.test.post(
-            app, 'auth/register',
+            hug.current_app, 'auth/register',
             {'email': 'test@email.com', 'password': 'T123'}
         )
         self.assertEqual(response.status, HTTP_400)
@@ -87,7 +86,7 @@ class RegistrationEndpointTestCase(APITest):
 
     def test_too_simple_password_cannot_be_registered(self):
         response = hug.test.post(
-            app, 'auth/register',
+            hug.current_app, 'auth/register',
             {'email': 'test@email.com', 'password': 'testpassword'}
         )
         self.assertEqual(response.status, HTTP_400)

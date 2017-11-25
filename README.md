@@ -40,3 +40,7 @@ Run your tests with
 python -m pytest
 ```
 
+## Examples
+You can see some basic examples of how set up models, authentication and routes on `user_jwt_auth_example_project` branch
+
+There is also an example how to implement application factory (just like we do in flask http://flask.pocoo.org/docs/0.12/patterns/appfactories/) on `app_constructor_example`
